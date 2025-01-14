@@ -18,9 +18,10 @@ class ChangePage(ActionBase):
         self.connect(signal=Signals.PageAdd, callback=self.on_page_changed)
         self.connect(signal=Signals.PageDelete, callback=self.on_page_changed)
         self.connect(signal=Signals.PageRename, callback=self.on_page_changed)
+        logger.info("ChangePage action initialized.")
 
     def on_page_changed(self, *args):
-        # Check the state of buttons 2 and 3 after a page change
+        logger.info("Page change detected. Checking button states.")
         self.check_button_states()
 
     def check_button_states(self):
@@ -28,7 +29,9 @@ class ChangePage(ActionBase):
         button_3_ip = "10.27.46.70"
 
         def is_shelly_plug_on(ip):
+            logger.info(f"Checking state of Shelly Plug at {ip}.")
             if ip in self.shelly_cache:
+                logger.info(f"Using cached state for {ip}: {self.shelly_cache[ip]}")
                 return self.shelly_cache[ip]
 
             try:
@@ -37,6 +40,7 @@ class ChangePage(ActionBase):
                     data = response.json()
                     is_on = data.get("output", False)  # Access switch state from response
                     self.shelly_cache[ip] = is_on
+                    logger.info(f"Shelly Plug {ip} is {'ON' if is_on else 'OFF'}.")
                     return is_on
             except requests.RequestException as e:
                 logger.error(f"Error contacting Shelly Plug at {ip}: {e}")
@@ -44,13 +48,15 @@ class ChangePage(ActionBase):
             return False
 
         state = 1 if is_shelly_plug_on(button_2_ip) and is_shelly_plug_on(button_3_ip) else 2
+        logger.info(f"Determined button state: {state}")
 
         self.update_button_state(2, state)
         self.update_button_state(3, state)
 
     def update_button_state(self, button_id, state):
+        logger.info(f"Updating button {button_id} to state {state}.")
         # Placeholder for setting the button state
-        logger.info(f"Updating button {button_id} to state {state}")
+        # This should interface with the button control API or system
 
     def __del__(self):
         # Disconnect all signals to prevent memory leaks
@@ -60,10 +66,11 @@ class ChangePage(ActionBase):
 class ChangeState(ActionBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        logger.info("ChangeState action initialized.")
 
     def set_state(self, button_id, state):
+        logger.info(f"Button {button_id} set to state {state}.")
         # Logic to set the state of a button
-        logger.info(f"Button {button_id} set to state {state}")
 
 # Plugin base class
 class CustomPlugin(PluginBase):
@@ -73,6 +80,21 @@ class CustomPlugin(PluginBase):
     def activate(self):
         # Ensure `check_button_states` is called only when necessary
         logger.info("Activating plugin. Initializing button states if required.")
+        self.test_check_button_states()
+
+    def test_check_button_states(self):
+        logger.info("Testing button state check during plugin activation.")
+        # Create a temporary instance of ChangePage to manually test the logic
+        temp_action = ChangePage(
+            action_id="test",
+            action_name="Test Page",
+            deck_controller=None,
+            page=None,
+            plugin_base=self,
+            state=None,
+            input_ident=None,
+        )
+        temp_action.check_button_states()
 
     def get_actions(self):
         return [
