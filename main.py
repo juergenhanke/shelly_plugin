@@ -10,8 +10,8 @@ logger = logging.getLogger(__name__)
 
 # Class to handle page changes
 class ChangePage(ActionBase):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, action_id, action_name, deck_controller, page, plugin_base, state, input_ident):
+        super().__init__(action_id, action_name, deck_controller, page, plugin_base, state, input_ident)
         self.connect(signal=Signals.PageAdd, callback=self.on_page_changed)
         self.connect(signal=Signals.PageDelete, callback=self.on_page_changed)
         self.connect(signal=Signals.PageRename, callback=self.on_page_changed)
@@ -58,8 +58,8 @@ class ChangePage(ActionBase):
 
 # Class to handle button state changes
 class ChangeState(ActionBase):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, action_id, action_name, deck_controller, page, plugin_base, state, input_ident):
+        super().__init__(action_id, action_name, deck_controller, page, plugin_base, state, input_ident)
 
     def set_state(self, button_id, state):
         # Logic to set the state of a button
@@ -69,8 +69,24 @@ class ChangeState(ActionBase):
 class CustomPlugin(PluginBase):
     def __init__(self):
         super().__init__()
-        self.change_page = ChangePage()
-        self.change_state = ChangeState()
+        self.change_page = ChangePage(
+            action_id="change_page",
+            action_name="Change Page",
+            deck_controller=None,  # Replace with actual deck controller
+            page=None,  # Replace with actual page
+            plugin_base=self,
+            state=None,
+            input_ident=None,
+        )
+        self.change_state = ChangeState(
+            action_id="change_state",
+            action_name="Change State",
+            deck_controller=None,  # Replace with actual deck controller
+            page=None,  # Replace with actual page
+            plugin_base=self,
+            state=None,
+            input_ident=None,
+        )
 
     def activate(self):
         # Ensure `check_button_states` is called only when necessary
