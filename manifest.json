@@ -1,0 +1,19 @@
+{
+    "version": "1.0.0",
+    "thumbnail": "store/Thumbnail.png",
+    "id": "shelly_plugin",
+    "name": "ShellyPlugin",
+    "descriptions": {
+        "en_US": "Control your Shelly Plugs - Change the button states when page changes happen"
+    },
+    "short-descriptions": {
+        "en_US": "Control your button states"
+    },
+    "tags": ["Utility"],
+    "minimum-app-version": "1.0.0",
+    "app-version": "1.0.0",
+
+    
+    "description": "Control your Shelly Plugs - Change the button states when page changes happen",
+    "short-description": "Control your button states"
+}
