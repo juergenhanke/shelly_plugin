@@ -10,14 +10,14 @@ logger = logging.getLogger(__name__)
 
 # Class to handle page changes
 class ChangePage(ActionBase):
-    def __init__(self, action_id, action_name, deck_controller, page, plugin_base, state, input_ident):
-        super().__init__(action_id, action_name, deck_controller, page, plugin_base, state, input_ident)
-        self.connect(signal=Signals.PageAdd, callback=self.on_page_changed)
-        self.connect(signal=Signals.PageDelete, callback=self.on_page_changed)
-        self.connect(signal=Signals.PageRename, callback=self.on_page_changed)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
         # Cache for Shelly Plug states
         self.shelly_cache = {}
+        self.connect(signal=Signals.PageAdd, callback=self.on_page_changed)
+        self.connect(signal=Signals.PageDelete, callback=self.on_page_changed)
+        self.connect(signal=Signals.PageRename, callback=self.on_page_changed)
 
     def on_page_changed(self, *args):
         # Check the state of buttons 2 and 3 after a page change
@@ -58,8 +58,8 @@ class ChangePage(ActionBase):
 
 # Class to handle button state changes
 class ChangeState(ActionBase):
-    def __init__(self, action_id, action_name, deck_controller, page, plugin_base, state, input_ident):
-        super().__init__(action_id, action_name, deck_controller, page, plugin_base, state, input_ident)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     def set_state(self, button_id, state):
         # Logic to set the state of a button
@@ -69,31 +69,21 @@ class ChangeState(ActionBase):
 class CustomPlugin(PluginBase):
     def __init__(self):
         super().__init__()
-        self.change_page = ChangePage(
-            action_id="change_page",
-            action_name="Change Page",
-            deck_controller=None,  # Replace with actual deck controller
-            page=None,  # Replace with actual page
-            plugin_base=self,
-            state=None,
-            input_ident=None,
-        )
-        self.change_state = ChangeState(
-            action_id="change_state",
-            action_name="Change State",
-            deck_controller=None,  # Replace with actual deck controller
-            page=None,  # Replace with actual page
-            plugin_base=self,
-            state=None,
-            input_ident=None,
-        )
 
     def activate(self):
         # Ensure `check_button_states` is called only when necessary
         logger.info("Activating plugin. Initializing button states if required.")
-        if self.should_check_button_states():
-            self.change_page.check_button_states()
 
-    def should_check_button_states(self):
-        # Placeholder logic for determining if button state check is needed
-        return True
+    def get_actions(self):
+        return [
+            {
+                "action_base": ChangePage,
+                "action_id_suffix": "ChangePage",
+                "action_name": "Change Page",
+            },
+            {
+                "action_base": ChangeState,
+                "action_id_suffix": "ChangeState",
+                "action_name": "Change State",
+            },
+        ]
